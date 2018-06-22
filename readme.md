@@ -70,6 +70,9 @@ Each of scence will be injected in `this.props` with an `animatedValue` with `in
 | ---- | ---- | ------------- | ---------- |
 | scenes | array of object { component: (required), backgroundColor: (optional) } | - | component: the view that will be displayed, backgroundColor: color of the view's background that will be animated
 | enableBackgroundColorTransition | boolean | undefined | Set to `true` to animate background color when transitining view/component
+| activeColor | string (hex, rgba, etc.) | `rgba(32, 119, 336, 1)` | color of active indicator, `Continue` button background color
+| inactiveColor | string (hex, rgba, etc.) |  `rgba(0, 0, 0, 0.2)` | color of inactive indicator
+
 
 ### Property injected in each scence `props`
 
