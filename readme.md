@@ -51,12 +51,31 @@ export default class App extends Component {
 
 ```
 
+### animatedValue
+
+Each of scence will be injected in `this.props` with an `animatedValue` with `inputRange = [0, windowWidth]`. This can be used for any animation within the scence by using interpolate. For example:
+
+```javascript
+    var animateValue = this.props.animatedValue.interpolate({
+        inputRange: [0, windowWidth],
+        outputRange: [0, 10]
+    })
+```
+
+(Please see actual code in the Expo example, file `./ExampleScenes/FirstScene.js` line `19` )
+
 ## Properties
 
 | Name | Type | Default Value | Definition |
 | ---- | ---- | ------------- | ---------- |
 | scenes | array of object { component: (required), backgroundColor: (optional) } | - | component: the view that will be displayed, backgroundColor: color of the view's background that will be animated
 | enableBackgroundColorTransition | boolean | undefined | Set to `true` to animate background color when transitining view/component
+
+### Property injected in each scence `props`
+
+| Name | Type | Default Value | Definition |
+| ---- | ---- | ------------- | ---------- |
+| animatedValue | interpolate value of Animated.Value | inputRange: [0, windowWidth] | an animated value, use for animation within a page by using `this.props.animatedValue.interpolate`
 
 ## Todo
 
