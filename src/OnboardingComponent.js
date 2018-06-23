@@ -73,15 +73,15 @@ export default class OnboardingComponent extends React.PureComponent {
     let { minValueSwipeAccepted } = this.props;
     if (dx > minValueSwipeAccepted) {
 
-      // Swiped left, go to next screen
+      // Swiped left, go to next scene
       this._nextScene();
     } else if (dx < -1 * minValueSwipeAccepted) {
 
-      // Swiped right, go to previous screen
+      // Swiped right, go to previous scene
       this._prevScene();
     } else {
 
-      // Not swipe strong enough, recenter screen
+      // Not swipe strong enough, recenter scene
       this._recenterScene();
     }
   }
@@ -99,7 +99,7 @@ export default class OnboardingComponent extends React.PureComponent {
   }
 
   /**
-   * Animate to next screen
+   * Animate to next scene
    */
   _nextScene = () => {
     
@@ -217,7 +217,9 @@ export default class OnboardingComponent extends React.PureComponent {
       enableBackgroundColorTransition, 
       actionableScene,
       activeColor,
-      hideStatusBar
+      hideStatusBar,
+      navigateButtonTitle,
+      skipToActionableTextTitle
     } = this.props
 
     , containerStyle = [
@@ -259,25 +261,37 @@ export default class OnboardingComponent extends React.PureComponent {
           </View>
         </ScrollView>
         
-        {/* Navigation Buttons */}
+        {/* Navigation Area */}
         <View style={[Styles.controllerWrapper]}>
+
+          {/* Slider active scene indicator */}
           <View style={Styles.activePageIndicatorWrapper}>
             {scenes.map(this._renderIndicator)}
           </View>
-          <TouchableWithoutFeedback onPress={() => {
-            this._animateToSceneNo(sceneLength - 1)
-          }}>
-            <View style={{ padding: 10, marginBottom: 5 }}>
-              <Text style={[Styles.btnText, { color: activeColor }]}>Skip to Get Started</Text>
-            </View>
-          </TouchableWithoutFeedback>
+          {/* END: Slider active scene indicator */}
+
+          {/* Text button for actionable scene */}
+          { !actionableScene ? null :
+            <TouchableWithoutFeedback onPress={() => {
+              this._animateToSceneNo(sceneLength - 1)
+            }}>
+              <View style={{ padding: 10, marginBottom: 5 }}>
+                <Text style={[Styles.btnText, { color: activeColor }]}>{ skipToActionableTextTitle }</Text>
+              </View>
+            </TouchableWithoutFeedback>
+          }
+          {/* END: Text button for actionable scene */}
+          
+          {/* Navigate to next page button */}
           <TouchableWithoutFeedback onPress={() => this._nextScene()}>
             <View style={[Styles.btnPositive, { width: windowWidth * .7, backgroundColor: activeColor }]}>
-              <Text style={Styles.btnPositiveText}>Continue</Text>
+              <Text style={Styles.btnPositiveText}>{ navigateButtonTitle }</Text>
             </View>
           </TouchableWithoutFeedback>
+          {/* END: Navigate to next page button */}
+
         </View>
-        {/* END: Navigation Buttons */}
+        {/* END: Navigation Area */}
 
         <StatusBar hidden={hideStatusBar} />
       </Animated.View>
@@ -287,7 +301,7 @@ export default class OnboardingComponent extends React.PureComponent {
 
 OnBoardingView.propTypes = {
 
-  // Mininum acceptable value for allowing navigate to next or previous screen
+  // Mininum acceptable value for allowing navigate to next or previous scene
   minValueSwipeAccepted: PropTypes.number,
 
   // Color when indicator is showing active state
@@ -300,7 +314,13 @@ OnBoardingView.propTypes = {
   sceneContainerStyle: View.propTypes.style,
 
   // Hide statusbar
-  hideStatusBar: PropTypes.bool
+  hideStatusBar: PropTypes.bool,
+
+  // Text title of the navigate to next scene button
+  navigateButtontitle: PropTypes.string,
+
+  // Text title of the link to navigate to the actionable scene
+  skipToActionableTextTitle: PropTypes.string
 };
 
 OnBoardingView.defaultProps = {
@@ -308,5 +328,7 @@ OnBoardingView.defaultProps = {
   activeColor: Colors.activeColor,
   inactiveColor: Colors.inactiveColor,
   sceneContainerStyle: Styles.sceneContainer,
-  hideStatusBar: true
+  hideStatusBar: true,
+  navigateButtontitle: 'Continue',
+  skipToActionableTextTitle: 'Skip to Get Started'
 }
