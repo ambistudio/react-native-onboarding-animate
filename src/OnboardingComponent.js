@@ -219,7 +219,7 @@ export default class OnboardingComponent extends React.PureComponent {
       activeColor,
       hideStatusBar,
       navigateButtonTitle,
-      skipToActionableTextTitle
+      buttonActionableTitle
     } = this.props
 
     , containerStyle = [
@@ -276,7 +276,7 @@ export default class OnboardingComponent extends React.PureComponent {
               this._animateToSceneNo(sceneLength - 1)
             }}>
               <View style={{ padding: 10, marginBottom: 5 }}>
-                <Text style={[Styles.btnText, { color: activeColor }]}>{ skipToActionableTextTitle }</Text>
+                <Text style={[Styles.btnText, { color: activeColor }]}>{ buttonActionableTitle }</Text>
               </View>
             </TouchableWithoutFeedback>
           }
@@ -317,10 +317,10 @@ OnboardingComponent.propTypes = {
   hideStatusBar: PropTypes.bool,
 
   // Text title of the navigate to next scene button
-  navigateButtontitle: PropTypes.string,
+  navigateButtonTitle: PropTypes.string,
 
   // Text title of the link to navigate to the actionable scene
-  skipToActionableTextTitle: PropTypes.string
+  buttonActionableTitle: PropTypes.string
 };
 
 OnboardingComponent.defaultProps = {
@@ -329,6 +329,6 @@ OnboardingComponent.defaultProps = {
   inactiveColor: Colors.inactiveColor,
   sceneContainerStyle: Styles.sceneContainer,
   hideStatusBar: true,
-  navigateButtontitle: 'Continue',
-  skipToActionableTextTitle: 'Skip to Get Started'
+  navigateButtonTitle: 'Continue',
+  buttonActionableTitle: 'Skip to Get Started'
 }
