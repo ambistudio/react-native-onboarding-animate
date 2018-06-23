@@ -37,7 +37,8 @@ Styles = {
   },
   activePageIndicatorWrapper: {
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    marginBottom: 10
   },
   activePageIndicator: {
       padding: 5

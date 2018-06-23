@@ -117,7 +117,7 @@ export default class OnboardingComponent extends React.PureComponent {
   /**
    * Navigate to a given scene number
    *
-   * @memberof OnBoardingView
+   * @memberof OnboardingComponent
    */
   _animateToSceneNo = (sceneNo) => {
     if (this._currentScene != sceneNo) {
@@ -299,7 +299,7 @@ export default class OnboardingComponent extends React.PureComponent {
   }
 }
 
-OnBoardingView.propTypes = {
+OnboardingComponent.propTypes = {
 
   // Mininum acceptable value for allowing navigate to next or previous scene
   minValueSwipeAccepted: PropTypes.number,
@@ -323,7 +323,7 @@ OnBoardingView.propTypes = {
   skipToActionableTextTitle: PropTypes.string
 };
 
-OnBoardingView.defaultProps = {
+OnboardingComponent.defaultProps = {
   minValueSwipeAccepted: 60,
   activeColor: Colors.activeColor,
   inactiveColor: Colors.inactiveColor,
