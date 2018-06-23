@@ -18,10 +18,10 @@ const windowWidth = Dimensions.get('window').width;
 /**
  * React Native Component for onboarding process, support animation
  * 
- * @version 0.2.0
+ * @version 0.x
  * @author [Ambi Studio](https://github.com/ambistudio)
  */
-export default class OnboardingComponent extends React.PureComponent {
+export default class OnboardingAnimate extends React.PureComponent {
 
   // Scene being displayed, change everytime user navigate (swipe/click) to new scene
   _currentScene = 0;
@@ -117,7 +117,7 @@ export default class OnboardingComponent extends React.PureComponent {
   /**
    * Navigate to a given scene number
    *
-   * @memberof OnboardingComponent
+   * @memberof OnboardingAnimate
    */
   _animateToSceneNo = (sceneNo) => {
     if (this._currentScene != sceneNo) {
@@ -299,7 +299,7 @@ export default class OnboardingComponent extends React.PureComponent {
   }
 }
 
-OnboardingComponent.propTypes = {
+OnboardingAnimate.propTypes = {
 
   // Mininum acceptable value for allowing navigate to next or previous scene
   minValueSwipeAccepted: PropTypes.number,
@@ -323,7 +323,7 @@ OnboardingComponent.propTypes = {
   buttonActionableTitle: PropTypes.string
 };
 
-OnboardingComponent.defaultProps = {
+OnboardingAnimate.defaultProps = {
   minValueSwipeAccepted: 60,
   activeColor: Colors.activeColor,
   inactiveColor: Colors.inactiveColor,

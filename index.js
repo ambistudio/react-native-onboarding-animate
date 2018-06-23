@@ -1,3 +1,3 @@
-import OnboardingComponent from './src/OnboardingComponent';
+import OnboardingAnimate from './src/OnboardingAnimate';
 
-export default OnboardingComponent;
+export default OnboardingAnimate;
