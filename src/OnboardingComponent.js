@@ -1,11 +1,13 @@
 import React from 'react';
 import { 
+  ScrollView,
   Animated, 
   View,
   Text,
   PanResponder, 
   Dimensions, 
-  TouchableOpacity 
+  TouchableWithoutFeedback,
+  StatusBar
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -19,7 +21,7 @@ const windowWidth = Dimensions.get('window').width;
  * @version 0.2.0
  * @author [Ambi Studio](https://github.com/ambistudio)
  */
-export default class OnBoardingView extends React.PureComponent {
+export default class OnboardingComponent extends React.PureComponent {
 
   // Scene being displayed, change everytime user navigate (swipe/click) to new scene
   _currentScene = 0;
@@ -62,16 +64,18 @@ export default class OnBoardingView extends React.PureComponent {
   ]);
 
   // Handler when user stop swiping action
-  _handlePanResponderEnd = (ev, { dx }) => {
+  _handlePanResponderEnd = (ev, values) => {
+  
+    let previousX = this._currentScene * windowWidth
+    , dx = this._currentX - previousX;
 
     // Define swipe direction, then animate toward the nearest view and setOffset
     let { minValueSwipeAccepted } = this.props;
-
-    if (dx < -1 * minValueSwipeAccepted) {
+    if (dx > minValueSwipeAccepted) {
 
       // Swiped left, go to next screen
       this._nextScene();
-    } else if (dx > minValueSwipeAccepted) {
+    } else if (dx < -1 * minValueSwipeAccepted) {
 
       // Swiped right, go to previous screen
       this._prevScene();
@@ -83,13 +87,12 @@ export default class OnBoardingView extends React.PureComponent {
   }
 
   _recenterScene = () => {
-    this._animateScene(0)
+    this._animateScene(this._currentScene * windowWidth)
   }
 
   _prevScene = () => {
     if (this._currentScene > 0) {
-      this._animateScene(windowWidth);
-      this._currentScene--;
+      this._animateToSceneNo(this._currentScene - 1);
     } else {
       this._recenterScene()
     }
@@ -100,11 +103,10 @@ export default class OnBoardingView extends React.PureComponent {
    */
   _nextScene = () => {
     
-    if (this._currentScene < this.props.scenes.length) {
+    if (this._currentScene < this.props.scenes.length -1) {
 
       // Animate to next scene and update currentScene index
-      this._animateScene(windowWidth * -1)
-      this._currentScene++;
+      this._animateToSceneNo(this._currentScene + 1)
     } else {
 
       // Recenter scene if already in the last scene
@@ -112,31 +114,24 @@ export default class OnBoardingView extends React.PureComponent {
     }
   }
 
-  _animateScene = (toValue, duration = 200) => {
-
-    Animated.timing(this._translateXValue, {
-      toValue,
-      duration
-    }).start(({ finished }) => {
-      finished ? this._translateXValue.setOffset(this._currentX) : null
-    })
+  /**
+   * Navigate to a given scene number
+   *
+   * @memberof OnBoardingView
+   */
+  _animateToSceneNo = (sceneNo) => {
+    if (this._currentScene != sceneNo) {
+      let toPosition = sceneNo * windowWidth;
+      this._currentScene = sceneNo;
+      this._animateScene(toPosition);
+    }
   }
 
-  _renderScene = (scene, index) => {
-    let { sceneContainerStyle } = this.props
-    , animatedWidthValue = windowWidth * -1
-    , animatedValue = this._translateXValue.interpolate({
-      inputRange: [(index + 1) * animatedWidthValue, index * animatedWidthValue],
-      outputRange: [windowWidth, 0]
-    });
 
-    return <View
-      key={`onboarding_scene_${index}`}
-      style={sceneContainerStyle}
-      collapsable={false}
-    >
-      {React.createElement(scene.component, { animatedValue })}
-    </View>
+  _animateScene = (toValue) => {
+    if (toValue < this.props.scenes.length * windowWidth) {
+      this._scrollView.scrollTo({ x: toValue })
+    }
   }
 
   /**
@@ -145,10 +140,10 @@ export default class OnBoardingView extends React.PureComponent {
   _getTransitionBackground = () => {
     let { scenes } = this.props
       , inputRange = [], outputRange = []
-      , i = scenes.length - 1;
+      , i;
 
-    for (i; i >= 0; i--) {
-      inputRange.push(-1 * i * windowWidth)
+    for (i = 0; i < scenes.length; i++) {
+      inputRange.push(i * windowWidth)
       outputRange.push(scenes[i].backgroundColor)
     }
 
@@ -164,9 +159,7 @@ export default class OnBoardingView extends React.PureComponent {
   _renderIndicator = (p, index) => {
 
     let { activeColor, inactiveColor } = this.props
-    , animatedWidthValue = windowWidth * -1
-    , startPosition = index * animatedWidthValue
-    , endPosition = (index + 1) * animatedWidthValue
+    , startPosition = index * windowWidth
     , animatedIndicatorBackground = {
       backgroundColor: this._translateXValue.interpolate({
         inputRange: [startPosition - (windowWidth / 2), startPosition, startPosition + (windowWidth / 2)],
@@ -175,14 +168,14 @@ export default class OnBoardingView extends React.PureComponent {
       })
     };
 
-    return <TouchableOpacity 
+    return <TouchableWithoutFeedback 
       onPress={() => { this._animateToSceneNo(index)}} 
       key={`obs_pageindicator-${index}`}
     >
         <View style={Styles.activePageIndicator}>
             <Animated.View style={[Styles.indicator, animatedIndicatorBackground]}></Animated.View>
         </View>
-    </TouchableOpacity>;
+    </TouchableWithoutFeedback>;
   }
 
   /**
@@ -202,12 +195,20 @@ export default class OnBoardingView extends React.PureComponent {
     }
   }
 
-  _animateToSceneNo = (sceneNo) => {
-    if (this._currentScene != sceneNo) {
-      let toPosition = (this._currentScene - sceneNo) * windowWidth;
-      this._animateScene(toPosition);
-      this._currentScene = sceneNo;
-    }
+  _renderScene = (scene, index) => {
+    let { sceneContainerStyle } = this.props
+    , animatedValue = this._translateXValue.interpolate({
+      inputRange: [index * windowWidth, (index + 1) * windowWidth],
+      outputRange: [0, windowWidth]
+    });
+
+    return <View
+      key={`onboarding_scene_${index}`}
+      style={sceneContainerStyle}
+      collapsable={false}
+    >
+      {React.createElement(scene.component, { animatedValue })}
+    </View>
   }
 
   render() {
@@ -215,7 +216,8 @@ export default class OnBoardingView extends React.PureComponent {
       scenes, 
       enableBackgroundColorTransition, 
       actionableScene,
-      activeColor
+      activeColor,
+      hideStatusBar
     } = this.props
 
     , containerStyle = [
@@ -232,47 +234,52 @@ export default class OnBoardingView extends React.PureComponent {
     return (
       <Animated.View
         style={containerStyle}
-        {...this._panResponder.panHandlers}
       >
-        <Animated.View
-          style={[
+        <ScrollView
+          useScrollView={true}
+          ref={ref => this._scrollView = ref}
+          style={{flex: 1}}
+          horizontal={true}
+          vertical={false}
+          showsHorizontalScrollIndicator={false}
+          scrollEventThrottle={14}
+          onScroll={Animated.event([{
+            nativeEvent: { contentOffset : { x: this._translateXValue }}
+          }])}
+          onScrollEndDrag={this._handlePanResponderEnd}
+        >
+          <View style={[
             Styles.animatedContainer,
             {
-              width: sceneLength * windowWidth,
-              transform: [{ translateX: this._translateXValue }]
-            }
-          ]}
-        >
-
+              width: windowWidth * scenes.length 
+            } 
+          ]}>
           {scenes.map(this._renderScene)}
-
-          
           {this._renderActionablePage()}
-
-        </Animated.View>
+          </View>
+        </ScrollView>
         
         {/* Navigation Buttons */}
         <View style={[Styles.controllerWrapper]}>
           <View style={Styles.activePageIndicatorWrapper}>
             {scenes.map(this._renderIndicator)}
           </View>
-          <TouchableOpacity onPress={() => {
+          <TouchableWithoutFeedback onPress={() => {
             this._animateToSceneNo(sceneLength - 1)
           }}>
             <View style={{ padding: 10, marginBottom: 5 }}>
               <Text style={[Styles.btnText, { color: activeColor }]}>Skip to Get Started</Text>
             </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this._nextScene}>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={() => this._nextScene()}>
             <View style={[Styles.btnPositive, { width: windowWidth * .7, backgroundColor: activeColor }]}>
-              <Text style={Styles.btnPositiveText}>
-                {'Continue'}
-              </Text>
+              <Text style={Styles.btnPositiveText}>Continue</Text>
             </View>
-          </TouchableOpacity>
+          </TouchableWithoutFeedback>
         </View>
         {/* END: Navigation Buttons */}
 
+        <StatusBar hidden={hideStatusBar} />
       </Animated.View>
     );
   }
@@ -290,12 +297,16 @@ OnBoardingView.propTypes = {
   inactiveColor: PropTypes.string,
 
   // Style of each scene container
-  sceneContainerStyle: View.propTypes.style
+  sceneContainerStyle: View.propTypes.style,
+
+  // Hide statusbar
+  hideStatusBar: PropTypes.bool
 };
 
 OnBoardingView.defaultProps = {
-  minValueSwipeAccepted: 80,
+  minValueSwipeAccepted: 60,
   activeColor: Colors.activeColor,
   inactiveColor: Colors.inactiveColor,
-  sceneContainerStyle: Styles.sceneContainer
+  sceneContainerStyle: Styles.sceneContainer,
+  hideStatusBar: true
 }

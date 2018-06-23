@@ -1,3 +1,3 @@
-import OnBoardingView from './src/OnBoardingView';
+import OnboardingComponent from './src/OnboardingComponent';
 
-export default OnBoardingView;
+export default OnboardingComponent;

@@ -1,7 +1,7 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
 const Colors = {
-  activeColor: 'rgba(32, 119, 336, 1)',
+  activeColor: '#2077E2',
   inactiveColor: 'rgba(0, 0, 0, 0.2)'
 },
 { width } = Dimensions.get('window'),

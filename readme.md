@@ -17,7 +17,7 @@ $ npm install react-native-onboarding-animate --save
 ```javascript
 import React, { Component } from 'react';
 
-import OnBoardingView from 'react-native-onboarding-animate';
+import OnboardingComponent from 'react-native-onboarding-animate';
 import {
   FirstScene,
   SecondScene,
@@ -42,7 +42,7 @@ export default class App extends Component {
       }
     ];
 
-    return <OnBoardingView
+    return <OnboardingComponent
         scenes={scenes}
         enableBackgroundColorTransition={true}
     />;
