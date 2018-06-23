@@ -1,6 +1,6 @@
 {
   "name": "react-native-onboarding-animate",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "On boarding component with animation",
   "main": "index.js",
   "scripts": {
