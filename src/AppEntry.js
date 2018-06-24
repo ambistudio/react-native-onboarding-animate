@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
  */
 export default class AppEntry extends React.PureComponent {
 
-    reload() {
+    reload = () => {
         this.forceUpdate()
     }
 
@@ -23,7 +23,7 @@ export default class AppEntry extends React.PureComponent {
         delete this.props.appComponent;
         delete this.props.onboardingComponent;
 
-        return React.createElement(activeComponent, { reloadAppEntry: this.forceUpdate , ...this.props });
+        return React.createElement(activeComponent, { reloadAppEntry: this.reload , ...this.props });
     }
 }
 

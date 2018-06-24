@@ -4,7 +4,6 @@ import {
   Animated, 
   View,
   Text,
-  PanResponder, 
   Dimensions, 
   TouchableWithoutFeedback,
   StatusBar
@@ -21,7 +20,11 @@ const windowWidth = Dimensions.get('window').width;
  * @version 0.x
  * @author [Ambi Studio](https://github.com/ambistudio)
  */
-export default class OnboardingAnimate extends React.PureComponent {
+export default class OnboardingAnimate extends React.Component {
+
+  state = {
+    isLastScene: false
+  }
 
   // Scene being displayed, change everytime user navigate (swipe/click) to new scene
   _currentScene = 0;
@@ -31,30 +34,13 @@ export default class OnboardingAnimate extends React.PureComponent {
   _currentX = 0;
 
   componentWillMount() {
-    this._panResponder = PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: this._handlePanResponderGrant,
-      onPanResponderMove: this._handlePanResponderMove,
-      onPanResponderRelease: this._handlePanResponderEnd,
-      onPanResponderTerminate: this._handlePanResponderEnd,
-      onPanResponderTerminationRequest: this._handlePanResponderEnd,
-    });
 
     this._translateXValue.addListener(({ value }) => {
+
+      // Keep track of transition X value, used to difine swipe direction
       this._currentX = value;
     })
-  }
 
-  _handleMoveShouldSetPanResponder = (ev, gestureState) => {
-
-    // Allow pan responder to be activate on view
-    return true;
-  }
-
-  _handlePanResponderGrant = (ev, gestureState) => {
-
-    // Do something when pan responder is activated
   }
 
   // When user is swiping, animate x cordinate accordingly 
@@ -64,7 +50,7 @@ export default class OnboardingAnimate extends React.PureComponent {
   ]);
 
   // Handler when user stop swiping action
-  _handlePanResponderEnd = (ev, values) => {
+  _handlePanResponderEnd = (handler) => {
   
     let previousX = this._currentScene * windowWidth
     , dx = this._currentX - previousX;
@@ -103,14 +89,22 @@ export default class OnboardingAnimate extends React.PureComponent {
    */
   _nextScene = () => {
     
-    if (this._currentScene < this.props.scenes.length -1) {
+    let lastScene = this.props.scenes.length -1;
+    if (this._currentScene < lastScene) {
 
       // Animate to next scene and update currentScene index
       this._animateToSceneNo(this._currentScene + 1)
+
+    } else if (this._currentScene == lastScene) {
+
+      // Process to main application, or any callback after the last scene
+      this.props.onCompleted();
+
     } else {
 
-      // Recenter scene if already in the last scene
+      // Recenter scene in any other case, might never happend
       this._recenterScene()
+
     }
   }
 
@@ -127,6 +121,16 @@ export default class OnboardingAnimate extends React.PureComponent {
     }
   }
 
+  // Check current scene and update isLastScene state
+  _updateState = () => {
+    let { _currentScene } = this;
+    if (_currentScene == this.props.scenes.length - 1) {
+      this.setState({ isLastScene: true })
+    } else if (this.state.isLastScene) {
+      this.setState({ isLastScene: false })
+    }
+
+  }
 
   _animateScene = (toValue) => {
     if (toValue < this.props.scenes.length * windowWidth) {
@@ -219,6 +223,7 @@ export default class OnboardingAnimate extends React.PureComponent {
       activeColor,
       hideStatusBar,
       navigateButtonTitle,
+      navigateButtonCompletedTitle,
       buttonActionableTitle
     } = this.props
 
@@ -285,7 +290,9 @@ export default class OnboardingAnimate extends React.PureComponent {
           {/* Navigate to next page button */}
           <TouchableWithoutFeedback onPress={() => this._nextScene()}>
             <View style={[Styles.btnPositive, { width: windowWidth * .7, backgroundColor: activeColor }]}>
-              <Text style={Styles.btnPositiveText}>{ navigateButtonTitle }</Text>
+              <Text style={Styles.btnPositiveText}>
+                { this.state.isLastScene ? navigateButtonCompletedTitle : navigateButtonTitle }
+              </Text>
             </View>
           </TouchableWithoutFeedback>
           {/* END: Navigate to next page button */}
@@ -320,7 +327,10 @@ OnboardingAnimate.propTypes = {
   navigateButtonTitle: PropTypes.string,
 
   // Text title of the link to navigate to the actionable scene
-  buttonActionableTitle: PropTypes.string
+  buttonActionableTitle: PropTypes.string,
+
+  // Callback when click on 'Completed' butotn in the last scene
+  onCompleted: PropTypes.func.isRequired
 };
 
 OnboardingAnimate.defaultProps = {
@@ -330,5 +340,6 @@ OnboardingAnimate.defaultProps = {
   sceneContainerStyle: Styles.sceneContainer,
   hideStatusBar: true,
   navigateButtonTitle: 'Continue',
+  navigateButtonCompletedTitle: 'Completed',
   buttonActionableTitle: 'Skip to Get Started'
 }
