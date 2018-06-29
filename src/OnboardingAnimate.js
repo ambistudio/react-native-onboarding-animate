@@ -118,6 +118,7 @@ export default class OnboardingAnimate extends React.Component {
       let toPosition = sceneNo * windowWidth;
       this._currentScene = sceneNo;
       this._animateScene(toPosition);
+      this._updateState();
     }
   }
 
