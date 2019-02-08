@@ -319,7 +319,7 @@ OnboardingAnimate.propTypes = {
   inactiveColor: PropTypes.string,
 
   // Style of each scene container
-  sceneContainerStyle: View.propTypes.style,
+  sceneContainerStyle: PropTypes.style,
 
   // Hide statusbar
   hideStatusBar: PropTypes.bool,
