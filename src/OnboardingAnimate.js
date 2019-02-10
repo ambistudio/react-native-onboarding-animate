@@ -1,12 +1,13 @@
 import React from 'react';
-import { 
+import {
   ScrollView,
-  Animated, 
+  Animated,
   View,
   Text,
-  Dimensions, 
+  Dimensions,
   TouchableWithoutFeedback,
-  StatusBar
+  StatusBar,
+  ViewPropTypes
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -16,7 +17,7 @@ const windowWidth = Dimensions.get('window').width;
 
 /**
  * React Native Component for onboarding process, support animation
- * 
+ *
  * @version 0.x
  * @author [Ambi Studio](https://github.com/ambistudio)
  */
@@ -43,7 +44,7 @@ export default class OnboardingAnimate extends React.Component {
 
   }
 
-  // When user is swiping, animate x cordinate accordingly 
+  // When user is swiping, animate x cordinate accordingly
   _handlePanResponderMove = Animated.event([
     null,
     { dx: this._translateXValue }
@@ -51,7 +52,7 @@ export default class OnboardingAnimate extends React.Component {
 
   // Handler when user stop swiping action
   _handlePanResponderEnd = (handler) => {
-  
+
     let previousX = this._currentScene * windowWidth
     , dx = this._currentX - previousX;
 
@@ -88,7 +89,7 @@ export default class OnboardingAnimate extends React.Component {
    * Animate to next scene
    */
   _nextScene = () => {
-    
+
     let lastScene = this.props.scenes.length -1;
     if (this._currentScene < lastScene) {
 
@@ -140,7 +141,7 @@ export default class OnboardingAnimate extends React.Component {
   }
 
   /**
-   * Get background colors from each scene, create then return an animated background style 
+   * Get background colors from each scene, create then return an animated background style
    */
   _getTransitionBackground = () => {
     let { scenes } = this.props
@@ -173,8 +174,8 @@ export default class OnboardingAnimate extends React.Component {
       })
     };
 
-    return <TouchableWithoutFeedback 
-      onPress={() => { this._animateToSceneNo(index)}} 
+    return <TouchableWithoutFeedback
+      onPress={() => { this._animateToSceneNo(index)}}
       key={`obs_pageindicator-${index}`}
     >
         <View style={Styles.activePageIndicator}>
@@ -217,9 +218,9 @@ export default class OnboardingAnimate extends React.Component {
   }
 
   render() {
-    let { 
-      scenes, 
-      enableBackgroundColorTransition, 
+    let {
+      scenes,
+      enableBackgroundColorTransition,
       actionableScene,
       activeColor,
       hideStatusBar,
@@ -259,14 +260,14 @@ export default class OnboardingAnimate extends React.Component {
           <View style={[
             Styles.animatedContainer,
             {
-              width: windowWidth * scenes.length 
-            } 
+              width: windowWidth * scenes.length
+            }
           ]}>
           {scenes.map(this._renderScene)}
           {this._renderActionablePage()}
           </View>
         </ScrollView>
-        
+
         {/* Navigation Area */}
         <View style={[Styles.controllerWrapper]}>
 
@@ -287,7 +288,7 @@ export default class OnboardingAnimate extends React.Component {
             </TouchableWithoutFeedback>
           }
           {/* END: Text button for actionable scene */}
-          
+
           {/* Navigate to next page button */}
           <TouchableWithoutFeedback onPress={() => this._nextScene()}>
             <View style={[Styles.btnPositive, { width: windowWidth * .7, backgroundColor: activeColor }]}>
@@ -319,7 +320,7 @@ OnboardingAnimate.propTypes = {
   inactiveColor: PropTypes.string,
 
   // Style of each scene container
-  sceneContainerStyle: PropTypes.style,
+  sceneContainerStyle: ViewPropTypes.style,
 
   // Hide statusbar
   hideStatusBar: PropTypes.bool,
