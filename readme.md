@@ -80,6 +80,18 @@ Each of scence will be injected in `this.props` with an `animatedValue` with `in
 | ---- | ---- | ------------- | ---------- |
 | animatedValue | interpolate value of Animated.Value | inputRange: [0, windowWidth] | an animated value, use for animation within a page by using `this.props.animatedValue.interpolate`
 
+## Transpile
+
+Run the below command to transpile typescript to javascript
+
+```
+$ tsc
+
+// yarn or npm
+$ yarn build
+$ npm run build
+```
+
 ## Todo
 
 - Test on android
