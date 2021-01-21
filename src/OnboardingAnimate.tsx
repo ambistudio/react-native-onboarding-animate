@@ -7,11 +7,12 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
   StatusBar,
-  ViewPropTypes
+  ViewStyle,
+  NativeSyntheticEvent,
+  NativeScrollEvent
 } from 'react-native';
-import PropTypes from 'prop-types';
 
-import Styles, { Colors } from './styles';
+import Styles from './styles';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -21,7 +22,7 @@ const windowWidth = Dimensions.get('window').width;
  * @version 0.x
  * @author [Ambi Studio](https://github.com/ambistudio)
  */
-export default class OnboardingAnimate extends React.Component {
+export default class OnboardingAnimate extends React.Component<Props> {
 
   state = {
     isLastScene: false
@@ -29,12 +30,13 @@ export default class OnboardingAnimate extends React.Component {
 
   // Scene being displayed, change everytime user navigate (swipe/click) to new scene
   _currentScene = 0;
+  _scrollView?: ScrollView | null;
 
   // Animated value
   _translateXValue = new Animated.Value(0);
   _currentX = 0;
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
 
     this._translateXValue.addListener(({ value }) => {
 
@@ -51,13 +53,16 @@ export default class OnboardingAnimate extends React.Component {
   ]);
 
   // Handler when user stop swiping action
-  _handlePanResponderEnd = (handler) => {
+  _handlePanResponderEnd = (handler: NativeSyntheticEvent<NativeScrollEvent>) => {
 
     let previousX = this._currentScene * windowWidth
-    , dx = this._currentX - previousX;
+      , dx = this._currentX - previousX;
 
     // Define swipe direction, then animate toward the nearest view and setOffset
-    let { minValueSwipeAccepted } = this.props;
+
+    // @ts-ignore
+    const minValueSwipeAccepted: number = this.props.minValueSwipeAccepted;
+    
     if (dx > minValueSwipeAccepted) {
 
       // Swiped left, go to next scene
@@ -90,7 +95,7 @@ export default class OnboardingAnimate extends React.Component {
    */
   _nextScene = () => {
 
-    let lastScene = this.props.scenes.length -1;
+    let lastScene = this.props.scenes.length - 1;
     if (this._currentScene < lastScene) {
 
       // Animate to next scene and update currentScene index
@@ -99,7 +104,7 @@ export default class OnboardingAnimate extends React.Component {
     } else if (this._currentScene == lastScene) {
 
       // Process to main application, or any callback after the last scene
-      this.props.onCompleted();
+      this.props.onCompleted && this.props.onCompleted();
 
     } else {
 
@@ -114,7 +119,7 @@ export default class OnboardingAnimate extends React.Component {
    *
    * @memberof OnboardingAnimate
    */
-  _animateToSceneNo = (sceneNo) => {
+  _animateToSceneNo = (sceneNo: number) => {
     if (this._currentScene != sceneNo) {
       let toPosition = sceneNo * windowWidth;
       this._currentScene = sceneNo;
@@ -134,8 +139,8 @@ export default class OnboardingAnimate extends React.Component {
 
   }
 
-  _animateScene = (toValue) => {
-    if (toValue < this.props.scenes.length * windowWidth) {
+  _animateScene = (toValue: number) => {
+    if (toValue < this.props.scenes.length * windowWidth && this._scrollView) {
       this._scrollView.scrollTo({ x: toValue })
     }
   }
@@ -162,25 +167,25 @@ export default class OnboardingAnimate extends React.Component {
     };
   }
 
-  _renderIndicator = (p, index) => {
+  _renderIndicator = (p: any, index: number) => {
 
     let { activeColor, inactiveColor } = this.props
-    , startPosition = index * windowWidth
-    , animatedIndicatorBackground = {
-      backgroundColor: this._translateXValue.interpolate({
-        inputRange: [startPosition - (windowWidth / 2), startPosition, startPosition + (windowWidth / 2)],
-        outputRange: [inactiveColor, activeColor, inactiveColor],
-        extrapolate: 'clamp'
-      })
-    };
+      , startPosition = index * windowWidth
+      , animatedIndicatorBackground = {
+        backgroundColor: this._translateXValue.interpolate({
+          inputRange: [startPosition - (windowWidth / 2), startPosition, startPosition + (windowWidth / 2)],
+          outputRange: [inactiveColor as string, activeColor as string, inactiveColor as string],
+          extrapolate: 'clamp'
+        })
+      };
 
     return <TouchableWithoutFeedback
-      onPress={() => { this._animateToSceneNo(index)}}
+      onPress={() => { this._animateToSceneNo(index) }}
       key={`obs_pageindicator-${index}`}
     >
-        <View style={Styles.activePageIndicator}>
-            <Animated.View style={[Styles.indicator, animatedIndicatorBackground]}></Animated.View>
-        </View>
+      <View style={Styles.activePageIndicator}>
+        <Animated.View style={[Styles.indicator, animatedIndicatorBackground]}></Animated.View>
+      </View>
     </TouchableWithoutFeedback>;
   }
 
@@ -196,17 +201,17 @@ export default class OnboardingAnimate extends React.Component {
         style={sceneContainerStyle}
         collapsable={false}
       >
-      {React.createElement(actionableScene)}
+        {React.createElement(actionableScene)}
       </View>
     }
   }
 
-  _renderScene = (scene, index) => {
+  _renderScene = (scene: Scene, index: number) => {
     let { sceneContainerStyle } = this.props
-    , animatedValue = this._translateXValue.interpolate({
-      inputRange: [index * windowWidth, (index + 1) * windowWidth],
-      outputRange: [0, windowWidth]
-    });
+      , animatedValue = this._translateXValue.interpolate({
+        inputRange: [index * windowWidth, (index + 1) * windowWidth],
+        outputRange: [0, windowWidth]
+      });
 
     return <View
       key={`onboarding_scene_${index}`}
@@ -229,15 +234,14 @@ export default class OnboardingAnimate extends React.Component {
       buttonActionableTitle
     } = this.props
 
-    , containerStyle = [
-      Styles.container
-    ]
-    , sceneLength = scenes.length + (actionableScene ? 1 : 0);
+      , containerStyle = [
+        Styles.container
+      ]
+      , sceneLength = scenes.length + (actionableScene ? 1 : 0);
 
     if (enableBackgroundColorTransition) {
-      containerStyle.push(
-        this._getTransitionBackground()
-      )
+      // @ts-ignore
+      containerStyle.push(this._getTransitionBackground());
     }
 
     return (
@@ -245,16 +249,14 @@ export default class OnboardingAnimate extends React.Component {
         style={containerStyle}
       >
         <ScrollView
-          useScrollView={true}
+          // useScrollView={true}
           ref={ref => this._scrollView = ref}
-          style={{flex: 1}}
+          style={{ flex: 1 }}
           horizontal={true}
-          vertical={false}
+          // vertical={false}
           showsHorizontalScrollIndicator={false}
           scrollEventThrottle={14}
-          onScroll={Animated.event([{
-            nativeEvent: { contentOffset : { x: this._translateXValue }}
-          }])}
+          onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: this._translateXValue } } }], { useNativeDriver: true })}
           onScrollEndDrag={this._handlePanResponderEnd}
         >
           <View style={[
@@ -263,8 +265,8 @@ export default class OnboardingAnimate extends React.Component {
               width: windowWidth * scenes.length
             }
           ]}>
-          {scenes.map(this._renderScene)}
-          {this._renderActionablePage()}
+            {scenes.map(this._renderScene)}
+            {this._renderActionablePage()}
           </View>
         </ScrollView>
 
@@ -278,12 +280,12 @@ export default class OnboardingAnimate extends React.Component {
           {/* END: Slider active scene indicator */}
 
           {/* Text button for actionable scene */}
-          { !actionableScene ? null :
+          {!actionableScene ? null :
             <TouchableWithoutFeedback onPress={() => {
               this._animateToSceneNo(sceneLength - 1)
             }}>
               <View style={{ padding: 10, marginBottom: 5 }}>
-                <Text style={[Styles.btnText, { color: activeColor }]}>{ buttonActionableTitle }</Text>
+                <Text style={[Styles.btnText, { color: activeColor }]}>{buttonActionableTitle}</Text>
               </View>
             </TouchableWithoutFeedback>
           }
@@ -293,7 +295,7 @@ export default class OnboardingAnimate extends React.Component {
           <TouchableWithoutFeedback onPress={() => this._nextScene()}>
             <View style={[Styles.btnPositive, { width: windowWidth * .7, backgroundColor: activeColor }]}>
               <Text style={Styles.btnPositiveText}>
-                { this.state.isLastScene ? navigateButtonCompletedTitle : navigateButtonTitle }
+                {this.state.isLastScene ? navigateButtonCompletedTitle : navigateButtonTitle}
               </Text>
             </View>
           </TouchableWithoutFeedback>
@@ -308,40 +310,32 @@ export default class OnboardingAnimate extends React.Component {
   }
 }
 
-OnboardingAnimate.propTypes = {
-
+type Props = {
   // Mininum acceptable value for allowing navigate to next or previous scene
-  minValueSwipeAccepted: PropTypes.number,
-
+  minValueSwipeAccepted?: number,
   // Color when indicator is showing active state
-  activeColor: PropTypes.string,
-
+  activeColor?: string,
   // Color when indicator is showing inactive state
-  inactiveColor: PropTypes.string,
-
+  inactiveColor?: string,
   // Style of each scene container
-  sceneContainerStyle: ViewPropTypes.style,
-
+  sceneContainerStyle?: ViewStyle,
   // Hide statusbar
-  hideStatusBar: PropTypes.bool,
-
+  hideStatusBar?: boolean,
   // Text title of the navigate to next scene button
-  navigateButtonTitle: PropTypes.string,
-
+  navigateButtonTitle?: string,
   // Text title of the link to navigate to the actionable scene
-  buttonActionableTitle: PropTypes.string,
-
+  buttonActionableTitle?: string,
   // Callback when click on 'Completed' butotn in the last scene
-  onCompleted: PropTypes.func.isRequired
+  onCompleted?: Function,
+  
+  navigateButtonCompletedTitle?: string,
+  enableBackgroundColorTransition: boolean,
+
+  scenes: Scene[],
+  actionableScene?: any
 };
 
-OnboardingAnimate.defaultProps = {
-  minValueSwipeAccepted: 60,
-  activeColor: Colors.activeColor,
-  inactiveColor: Colors.inactiveColor,
-  sceneContainerStyle: Styles.sceneContainer,
-  hideStatusBar: true,
-  navigateButtonTitle: 'Continue',
-  navigateButtonCompletedTitle: 'Completed',
-  buttonActionableTitle: 'Skip to Get Started'
+type Scene = {
+  component: any,
+  backgroundColor: string,
 }

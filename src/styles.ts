@@ -70,9 +70,9 @@ Styles = {
       color: 'white',
       fontWeight: '600'
   }
-}
+};
 
-export default StyleSheet.create(Styles);
+export default StyleSheet.create(Styles as any);
 export {
   Colors
 }

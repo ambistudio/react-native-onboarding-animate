@@ -1,8 +1,8 @@
 {
   "name": "react-native-onboarding-animate",
-  "version": "1.0.0",
+  "version": "1.2.1",
   "description": "On boarding component with animation",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,5 +23,13 @@
   "bugs": {
     "url": "https://github.com/ambistudio/react-native-onboarding-animate/issues"
   },
-  "homepage": "https://github.com/ambistudio/react-native-onboarding-animate#readme"
+  "homepage": "https://github.com/ambistudio/react-native-onboarding-animate#readme",
+  "peerDependencies": {
+    "react": "^17.0.1",
+    "react-native": "^0.63.4"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.0",
+    "@types/react-native": "^0.63.46"
+  }
 }
