@@ -10,6 +10,9 @@ export default class OnboardingAnimate extends React.Component<Props> {
     state: {
         isLastScene: boolean;
     };
+    static defaultProps: {
+        minValueSwipeAccepted: number;
+    };
     _currentScene: number;
     _scrollView?: ScrollView | null;
     _translateXValue: Animated.Value;

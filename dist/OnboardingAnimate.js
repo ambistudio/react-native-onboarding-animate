@@ -1,7 +1,7 @@
 import React from 'react';
-import { ScrollView, Animated, View, Text, Dimensions, TouchableWithoutFeedback, StatusBar } from 'react-native';
+import { Animated, View, Text, Dimensions, TouchableWithoutFeedback, StatusBar } from 'react-native';
 import Styles from './styles';
-const windowWidth = Dimensions.get('window').width;
+const windowWidth = Dimensions.get("window").width;
 /**
  * React Native Component for onboarding process, support animation
  *
@@ -23,7 +23,7 @@ export default class OnboardingAnimate extends React.Component {
         this._handlePanResponderMove = Animated.event([
             null,
             { dx: this._translateXValue }
-        ]);
+        ], { useNativeDriver: false });
         // Handler when user stop swiping action
         this._handlePanResponderEnd = (handler) => {
             let previousX = this._currentScene * windowWidth, dx = this._currentX - previousX;
@@ -162,13 +162,15 @@ export default class OnboardingAnimate extends React.Component {
             containerStyle.push(this._getTransitionBackground());
         }
         return (React.createElement(Animated.View, { style: containerStyle },
-            React.createElement(ScrollView
-            // useScrollView={true}
-            , { 
-                // useScrollView={true}
-                ref: ref => this._scrollView = ref, style: { flex: 1 }, horizontal: true, 
-                // vertical={false}
-                showsHorizontalScrollIndicator: false, scrollEventThrottle: 14, onScroll: Animated.event([{ nativeEvent: { contentOffset: { x: this._translateXValue } } }], { useNativeDriver: true }), onScrollEndDrag: this._handlePanResponderEnd },
+            React.createElement(Animated.ScrollView, { ref: (ref) => this._scrollView = ref, style: { flex: 1 }, horizontal: true, showsHorizontalScrollIndicator: false, scrollEventThrottle: 14, onScroll: Animated.event([{
+                        nativeEvent: {
+                            contentOffset: {
+                                x: this._translateXValue
+                            }
+                        }
+                    }], {
+                    useNativeDriver: false
+                }), onScrollEndDrag: this._handlePanResponderEnd },
                 React.createElement(View, { style: [
                         Styles.animatedContainer,
                         {
@@ -191,3 +193,6 @@ export default class OnboardingAnimate extends React.Component {
             React.createElement(StatusBar, { hidden: hideStatusBar })));
     }
 }
+OnboardingAnimate.defaultProps = {
+    minValueSwipeAccepted: 50
+};

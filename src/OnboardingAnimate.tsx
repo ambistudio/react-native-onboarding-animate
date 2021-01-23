@@ -14,7 +14,7 @@ import {
 
 import Styles from './styles';
 
-const windowWidth = Dimensions.get('window').width;
+const windowWidth = Dimensions.get("window").width;
 
 /**
  * React Native Component for onboarding process, support animation
@@ -26,6 +26,10 @@ export default class OnboardingAnimate extends React.Component<Props> {
 
   state = {
     isLastScene: false
+  }
+
+  static defaultProps = {
+    minValueSwipeAccepted: 50
   }
 
   // Scene being displayed, change everytime user navigate (swipe/click) to new scene
@@ -50,10 +54,11 @@ export default class OnboardingAnimate extends React.Component<Props> {
   _handlePanResponderMove = Animated.event([
     null,
     { dx: this._translateXValue }
-  ]);
+  ], { useNativeDriver: false });
 
   // Handler when user stop swiping action
   _handlePanResponderEnd = (handler: NativeSyntheticEvent<NativeScrollEvent>) => {
+
 
     let previousX = this._currentScene * windowWidth
       , dx = this._currentX - previousX;
@@ -62,7 +67,7 @@ export default class OnboardingAnimate extends React.Component<Props> {
 
     // @ts-ignore
     const minValueSwipeAccepted: number = this.props.minValueSwipeAccepted;
-    
+
     if (dx > minValueSwipeAccepted) {
 
       // Swiped left, go to next scene
@@ -248,15 +253,21 @@ export default class OnboardingAnimate extends React.Component<Props> {
       <Animated.View
         style={containerStyle}
       >
-        <ScrollView
-          // useScrollView={true}
-          ref={ref => this._scrollView = ref}
+        <Animated.ScrollView
+          ref={(ref: ScrollView) => this._scrollView = ref}
           style={{ flex: 1 }}
           horizontal={true}
-          // vertical={false}
           showsHorizontalScrollIndicator={false}
           scrollEventThrottle={14}
-          onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: this._translateXValue } } }], { useNativeDriver: true })}
+          onScroll={Animated.event([{
+            nativeEvent: {
+              contentOffset: {
+                x: this._translateXValue
+              }
+            }
+          }], {
+            useNativeDriver: false
+          })}
           onScrollEndDrag={this._handlePanResponderEnd}
         >
           <View style={[
@@ -268,7 +279,7 @@ export default class OnboardingAnimate extends React.Component<Props> {
             {scenes.map(this._renderScene)}
             {this._renderActionablePage()}
           </View>
-        </ScrollView>
+        </Animated.ScrollView>
 
         {/* Navigation Area */}
         <View style={[Styles.controllerWrapper]}>
@@ -327,7 +338,7 @@ type Props = {
   buttonActionableTitle?: string,
   // Callback when click on 'Completed' butotn in the last scene
   onCompleted?: Function,
-  
+
   navigateButtonCompletedTitle?: string,
   enableBackgroundColorTransition: boolean,
 
